@@ -22,7 +22,7 @@ I create a `package.json` with the **Professional Standard** metadata (as define
 **Mandatory Metadata:**
 -   `name`: `[project-name]`
 -   `version`: `0.0.0`
--   `author`: `Samuel Aure`
+-   `author`: `{ "name": "Samuel Aure", "url": "https://www.samuelaure.com" }`
 -   `license`: `Proprietary`
 -   `scripts`: `dev`, `build`, `start`, `lint`, `format`, `test`, `release` (plus any others from the Plan).
 -   `engines`: `{ "node": ">=20.0.0" }`
@@ -38,11 +38,14 @@ I read the **"Folder Structure"** and **"Files to Create"** sections of the Plan
 If the Plan specifies a Database:
 1.  **Env**: Create `.env` and `.env.example`.
 2.  **Connection**: Set `DATABASE_URL` to point to the Shared Infrastructure (e.g., `postgresql://user:pass@localhost:5432/db_name` for local).
-3.  **Docker**: Create `docker-compose.yml` (App only) and `docker-compose.override.yml` (Network bridging) as verified by the Plan.
+3.  **Docker**: 
+    -   Create `docker-compose.yml` containing the App and all required auxiliary services (Postgres, Redis, etc.) so it's fully functional for any developer.
+    -   Create `docker-compose.override.yml.example` which **deactivates** the auxiliary services (e.g., using `entrypoint: ["echo", "service deactivated"]` or `profiles`) and configures the App to connect to the `shared-mesh` network.
+4.  **Local Override**: Create a local `docker-compose.override.yml` for development if needed, but ensure it is **Git Ignored**.
 
 ### Step 5: Final Lockdown
 1.  **Verify**: Run `npm run lint` and `npm run build` (if applicable) to ensure the skeleton is valid.
 2.  **Commit**: `git add . && git commit -m "feat: scaffold project architecture"`
 
 ## 3. Handoff
-Project is now ready for the **Implementor**.
+Project is now ready for the **Builder**.

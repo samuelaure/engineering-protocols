@@ -4,8 +4,9 @@ description: Commit Protocol & Code Quality Standards
 
 ## 1. PRE-COMMIT CHECKLIST (Non-Negotiable)
 
-Before creating any commit, you must ensure the health of the codebase. Do not rely on CI to catch basic errors.
+Before creating any commit, you must ensure the health of the codebase. You are responsible for formatting, testing, and typechecking YOUR code before atomic-committing it. Do not rely on CI to catch basic errors.
 
+### Required Checks
 Run the following checks locally:
 
 1.  **Format**: Ensure all code is formatted according to project standards (Prettier).
@@ -16,8 +17,10 @@ Run the following checks locally:
 ### Recommended Command Sequence
 Run this sequence before staging files:
 ```bash
-npm run format && npm run lint && npm run type-check
+npm run format && npm run lint && npm run type-check && npm run test
 ```
+
+**Note on Automation**: If the project has automated hooks (like Husky or lint-staged) that perform these checks on commit, you may skip manual execution IF AND ONLY IF you are confident the hooks are active and covering the required checks. However, manual verification is always safer.
 
 If any step fails, **fix it immediately**. Do not bypass these checks.
 

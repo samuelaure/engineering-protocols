@@ -28,6 +28,7 @@ Run the gauntlet. If any fail, stop.
 3.  **Test**: `npm run test`
 // turbo
 4.  **Build**: `npm run build` (Ensure it actually builds)
+5.  **Infrastructure Verification**: Ensure `docker-compose.override.yml.example` correctly **deactivates** local services and aligns with the `shared-mesh` production requirements.
 
 ### Step 3: Versioning (The Bump)
 We use Semantic Versioning.
@@ -46,8 +47,23 @@ We use Semantic Versioning.
 3.  **Merge**: `git merge feat/my-branch`
 4.  **Push**: `git push origin main`
 
-### Step 5: Cleanup
+### Step 5: Local Environment Deployment (Post-Merge)
+Once merged, I must ensure the local environment reflects the latest state of `main`.
+1.  **Build**: `npm run build`
+2.  **Infrastructure Ops**:
+    -   Apply database migrations: `npm run migration:run` (or equivalent).
+    -   Refresh services: `docker-compose up -d` (restoring any local services if needed).
+    -   Ensure all dependencies are fresh: `npm install`.
+3.  **Smoke Test**: Verify the app starts and runs locally.
+
+### Step 6: Cleanup
 1.  **Delete Local**: `git branch -d feat/my-branch`
 2.  **Delete Remote**: `git push origin --delete feat/my-branch` (if it exists)
 
-The feature is now technically "shipped" to the trunk, but not essentially "Deployed to Production" (depending on CI).
+## 3. Constraint / Output
+- **I DO NOT write feature code.**
+- **I ONLY** handle linting, building, version bumping (without tagging), the final merge integration, and **local deployment orchestration**.
+- I ensure the developer has the fresh last version of the app running LOCALLY (migrations applied, services up).
+- If infrastructure alignment is missing (e.g., no `.example` override), I reject the merge.
+
+*Safety in integration. Stability in main. Readiness in development.*
