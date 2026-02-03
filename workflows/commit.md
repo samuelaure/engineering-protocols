@@ -1,0 +1,70 @@
+---
+description: Commit Protocol & Code Quality Standards
+---
+
+## 1. PRE-COMMIT CHECKLIST (Non-Negotiable)
+
+Before creating any commit, you must ensure the health of the codebase. Do not rely on CI to catch basic errors.
+
+Run the following checks locally:
+
+1.  **Format**: Ensure all code is formatted according to project standards (Prettier).
+2.  **Lint**: Run static analysis to catch potential bugs and style violations (ESLint).
+3.  **Type Check**: Validate type safety (TypeScript).
+4.  **Test**: Run relevant unit tests for the changes made.
+
+### Recommended Command Sequence
+Run this sequence before staging files:
+```bash
+npm run format && npm run lint && npm run type-check
+```
+
+If any step fails, **fix it immediately**. Do not bypass these checks.
+
+---
+
+## 2. COMMIT MESSAGE CONVENTIONS
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
+
+### Structure
+```
+<type>(<scope>): <subject>
+
+<body (optional)>
+
+<footer (optional)>
+```
+
+### Types
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, etc)
+- **refactor**: A code change that neither fixes a bug nor adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adding missing tests or correcting existing tests
+- **chore**: Changes to the build process or auxiliary tools and libraries such as documentation generation
+
+### Rules
+- **Imperative mood**: "Add feature" not "Added feature"
+- **No periods**: No dot at the end of the subject line
+- **Lowercase**: Keep the subject lowercase
+
+### Examples
+- `feat(auth): implement jwt token generation`
+- `fix(api): handle timeout error in user service`
+- `style(ui): update button padding`
+
+---
+
+## 3. GIT WORKFLOW
+
+### Atomic Commits
+- Each commit should do **one thing**.
+- If you have multiple changes (e.g., a bug fix and a new feature), split them into separate commits.
+- This makes reverting changes and code review significantly easier.
+
+---
+
+**Code is communication. Commits are history. Make them clean.**
