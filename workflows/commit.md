@@ -70,4 +70,18 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 
 ---
 
+## 4. AGENT EXECUTION STEPS (The "Straight Shot")
+
+To avoid redundant commands and ensure high-fidelity commits, follow this sequence:
+
+1.  **Discover**: Run `git status --porcelain` once to get a parseable list of changes.
+2.  **Inspect**: Run `git diff` on modified files and `view_file` on new files to internalize the logic of the changes.
+3.  **Group**: Determine if changes represent one atomic unit or multiple.
+4.  **Verify**: Run the "Required Checks" (Linting, Testing, etc.).
+5.  **Stage**: Use `git add <specific files>` instead of `git add .` to maintain atomicity.
+6.  **Verify Staging**: Run `git status --porcelain` and `git diff --cached` once to confirm exactly what is going into the commit.
+7.  **Commit**: Execute `git commit -m "<message>"` following Conventional Commits.
+
+---
+
 **Code is communication. Commits are history. Make them clean.**
