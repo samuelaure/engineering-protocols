@@ -35,8 +35,15 @@ This file is **Law** for the development of the project.
 Make its items checkeable, so the completed parts can be marked as done to track progress.
 
 ### Required Plan Structure (Strict):
+*I must adapt these sections to the unique scale, complexity, and domain of the current task. Standard answers are failure; precision is success.*
 
-#### A. Project Identity
+#### A. Project Constraints & Implementation Principles
+- **Context-Specific Constraints**: Define the hard boundaries and unique requirements for this specific implementation (e.g., "Must run in a browser sandbox", "Maximum cold-start time of 200ms", "Legacy DB compatibility required").
+- **Implementation Principles**: Specify the architectural and coding patterns that MUST be followed for this codebase (e.g., "Event-driven architecture", "Functional programming style", "Absolute type safety").
+- **Anti-Bloat & Tech Debt Prevention**: List specific technologies, patterns, or complexities to avoid for this project.
+- **Verification Strategy**: Define the high-fidelity testing and validation requirements specific to this implementation's critical paths.
+
+#### B. Project Identity
 -   **Name**: `[project-name]`
 -   **Type**: `[Monorepo | Standalone Backend | CLI | Frontend SPA]`
 -   **Core Stack**:
@@ -45,48 +52,33 @@ Make its items checkeable, so the completed parts can be marked as done to track
     -   Frameworks: `[Exact Package Names, e.g., @nestjs/core, next, drizzle-orm]`
     -   Database: `[Postgres | SQLite | None]`
 
-#### B. Architectural Blueprint
+#### C. Architectural Blueprint
 -   **Modules**: List every domain module (e.g., `UserModule`, `PaymentModule`).
 -   **Data Models**: Complete schema definition (Entities + Relations).
 -   **API Surface**: Key endpoints and their duties.
 
-#### C. Starter Instructions (For /starter)
+#### D. Starter Instructions (For /starter)
 *Explicit commands for the Starter agent to execute Phase 0.*
 -   **Files to Create**: List specific config files (e.g. `nest-cli.json`, `next.config.js`, `tsconfig.json`).
 -   **Dependencies to Install**: explicit `npm install` list.
 -   **Folder Structure**: The exact tree to generate.
 -   **Database Setup**: Connection string format for Shared Infra (if applicable).
 
-#### D. Shared Infrastructure Strategy
+#### E. Shared Infrastructure Strategy
 -   **Philosophy**: Shared services (Postgres, Redis) are predefined in `docker-compose.yml` for ease of use but deactivated in the shared environment to save resources.
 -   **Public Dev (`docker-compose.yml`)**: Should include all necessary services (App, DB, Redis) so a standard `docker-compose up` works out-of-the-box for any developer.
 -   **Shared Environment (`docker-compose.override.yml.example`)**: Must define the `shared-mesh` network and **deactivate** the local DB/Redis services (e.g., `profiles: [donotstart]`) while pointing the App service to the shared infrastructure.
 
 
-#### E. Execution Roadmap
+#### F. Execution Roadmap
 -   **Phase 1: Foundation**: Auth, Base Entities, logging, and **Infrastructure Setup** (Docker & Shared Mesh).
 -   **Phase 2... N**: Feature implementation order.
 
 
-## 4. workspace Rules Generation
-I MUST generate/update: `[Workspace Root]/.agent/rules/[project-name]-rules.md`.
-This file adapts the Global Principles to the specific context of this project.
 
-### Required Rules Content:
-1.  **Anti-Bloat Directive (Contextualized)**: "For this CLI tool, no heavy framework allowed."
-2.  **Performance Principles**:
-    -   **Pagination**: Mandatory for lists.
-    -   **Streaming**: Mandatory for large files/data.
-    -   **Indexes**: Mandatory for real query paths.
-    -   **Efficiency**: System must run on 4GB RAM constraints.
-3.  **Architecture Principles**:
-    -   **Modular Monolith**: Domain-driven folders (`/users`, `/payments`).
-    -   **Testing Philosophy**: Test impact, not trivia. 100% coverage on critical paths (Money, Auth, Data integrity).
-    -   **Errors**: No silent failures. Typed, caught, and logged with IDs.
-
-## 5. Constraint / Output
+## 4. Constraint / Output
 - **I DO NOT write code.**
-- **I ONLY** generate/update `IMPLEMENTATION_PLAN.md` with actionable items (markable as done to track progress) and project-specific `rules/*.md`.
+- **I ONLY** generate/update `IMPLEMENTATION_PLAN.md` with actionable items (markable as done to track progress).
 - Before finalizing, I MUST ask: "If I gave this to a junior engineer without talking to them, would they build the *exact* right thing?"
 
 *Direction precedes construction. Strategy defines quality.*

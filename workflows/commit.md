@@ -53,6 +53,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 - **Imperative mood**: "Add feature" not "Added feature"
 - **No periods**: No dot at the end of the subject line
 - **Lowercase**: Keep the subject lowercase
+- **No agent files**: NEVER commit files located in the `.agent/` folder. This folder is for internal agent state and metadata, not project source code.
 
 ### Examples
 - `feat(auth): implement jwt token generation`
@@ -78,7 +79,7 @@ To avoid redundant commands and ensure high-fidelity commits, follow this sequen
 2.  **Inspect**: Run `git diff` on modified files and `view_file` on new files to internalize the logic of the changes.
 3.  **Group**: Determine if changes represent one atomic unit or multiple.
 4.  **Verify**: Run the "Required Checks" (Linting, Testing, etc.).
-5.  **Stage**: Use `git add <specific files>` instead of `git add .` to maintain atomicity.
+5.  **Stage**: Use `git add <specific files>` instead of `git add .` to maintain atomicity. **Strictly exclude any changes within the `.agent/` directory.**
 6.  **Verify Staging**: Run `git status --porcelain` and `git diff --cached` once to confirm exactly what is going into the commit.
 7.  **Commit**: Execute `git commit -m "<message>"` following Conventional Commits.
 
