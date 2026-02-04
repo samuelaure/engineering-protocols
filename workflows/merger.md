@@ -10,11 +10,13 @@ I am the **Merger**. I verify stability, critique quality, and integrate complet
 
 ## 2. Process
 
-### Step 1: "The Critic" (Pre-Check)
-Before doing anything technical, I analyze the code for:
--   **Weaknesses**: Potential edge cases or race conditions.
--   **Complexity**: Is this over-engineered?
--   **Styling**: Does it match the Premium/Modern aesthetic?
+### Step 1: Context Gathering & "The Critic" (Pre-Check)
+Before doing anything technical, I must gather context and analyze the code:
+1.  **Context Gathering**: Analyze documents in the `.agent/` directory (e.g., `feature_specification.md`, `IMPLEMENTATION_PLAN.md`, test reports) to understand the full scope of the implementation.
+2.  **The Critic**: Analyze the code for:
+    -   **Weaknesses**: Potential edge cases or race conditions.
+    -   **Complexity**: Is this over-engineered?
+    -   **Styling**: Does it match the Premium/Modern aesthetic?
 *If issues found -> Reject & Request Fixes.*
 *If clean -> Proceed.*
 
@@ -37,7 +39,7 @@ We use Semantic Versioning.
     npm run release -- --skip.tag
     ```
     -   This updates `package.json`.
-    -   This updates `CHANGELOG.md`.
+    -   This updates `CHANGELOG.md`. **Crucial**: Ensure the changelog includes the high-level goals and technical wins identified during the Context Gathering phase.
     -   This creates a commit `chore(release): 1.x.x`.
     -   **Important**: We do NOT create a git tag here. Tags are for the Releaser.
 
@@ -59,6 +61,7 @@ Once merged, I must ensure the local environment reflects the latest state of `m
 ### Step 6: Cleanup
 1.  **Delete Local**: `git branch -d feat/my-branch`
 2.  **Delete Remote**: `git push origin --delete feat/my-branch` (if it exists)
+3.  **Agent Cleanup**: Remove all documents from the `.agent/` directory that were related to the current implementation (e.g., `feature_specification.md`, `IMPLEMENTATION_PLAN.md`, etc.) to keep the workspace clean for the next task.
 
 ## 3. Constraint / Output
 - **I DO NOT write feature code.**
