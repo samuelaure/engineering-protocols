@@ -35,24 +35,30 @@ I enforce the following "World Class" Docker patterns:
 ### B. Environment & Configuration Consistency
 1.  **Zero-In-Compose**: Environment variables should NOT be hardcoded in `docker-compose.yml`. Use `.env` and `.env.example` files.
 2.  **Backbone Defaults**: `.env.example` must point to the shared infrastructure hosts (`shared_postgres`, `shared_redis`) by default.
-3.  **Override Excellence**: `docker-compose.override.yml.example` MUST contain the logic to deactivate local dependencies when the Backbone is available.
+3.  **Portability First**: `docker-compose.yml` MUST remain fully portable. It should contain all necessary services to run the project in isolation for any developer.
+4.  **Local Cloud Compliance (Override)**: Projects comply with the shared infrastructure (Traefik, shared networks, etc.) via `docker-compose.override.yml`. 
+5.  **Identical Overrides (CRITICAL)**: `docker-compose.override.yml` and `docker-compose.override.yml.example` MUST be tracked and MUST be identical. The override is explicitly for the USER's specific infrastructure.
 
-### C. Service Mesh (URL-Driven)
-1.  **Sentinel Labels**: Every `app` service MUST have standardized Traefik labels following the domain convention:
-    - **Local Choice**: `[project-name].localhost`
-    - **Production Choice**: `[project-name].9nau.com`
+### C. Service Mesh (Variable-Driven Routing)
+1.  **Bit-Identical Overrides**: Traefik labels in `docker-compose.override.yml` MUST use variable interpolation (e.g., `${PUBLIC_DOMAIN}`) instead of hardcoded strings. This ensures the override file remains bit-identical across all environments.
+2.  **Environment Mapping**: The specific routing (e.g., `whatsnau.localhost` vs `whatsnau.9nau.com`) MUST be controlled via the `PUBLIC_DOMAIN` variable in the local `.env` file.
 
 ## 5. The Migration Audit Process
 
-1.  **Context Loading**: Read the current state of `c:/Users/Sam/code/infrastructure/docker-compose.yml`.
-2.  **Gap Analysis**: Compare the project's current Docker setup against the "Docker Elite" protocols.
-3.  **Remediation Mapping**: Create a set of atomic tasks to:
+1.  **Context Loading**: Read `c:/Users/Sam/code/infrastructure/docker-compose.yml` for mesh standards.
+2.  **Infrastructure Audit**: 
+    - Verify `docker-compose.override.yml` exists and matches `docker-compose.override.yml.example`.
+    - Ensure infrastructure labels (Traefik), networks (`shared-mesh`), and shared-service mappings are in the overrides, NOT the base compose.
+3.  **Gap Analysis**: Compare the project's current Docker setup against the "Docker Elite" protocols.
+4.  **Remediation Mapping**: Create a set of atomic tasks to:
     - Backup existing data.
+    - Ensure identity between `docker-compose.override.yml` and `.example`.
+    - Move infrastructure-specific config (Labels/Networks) from `docker-compose.yml` to the override.
+    - Parameterize routing labels using `${PUBLIC_DOMAIN}` in the override.
     - Rename services and containers.
     - Move hardcoded envs to `.env`.
-    - Inject Traefik labels.
-    - Configure the `shared-mesh` network.
-4.  **Legacy Deprecation**: Identify local `postgres` or `redis` services that can be removed or deactivated in favor of the Backbone.
+    - Configure the `shared-mesh` network in the override.
+5.  **Legacy Deprecation**: Identify local `postgres` or `redis` services that can be removed or deactivated in favor of the Backbone.
 
 ## 6. Communication & Handoff
 - **Output**: I generate a **Sentinel Migration Report** appended to the active `PHASE_*.md` file.
