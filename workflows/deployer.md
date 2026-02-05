@@ -27,9 +27,15 @@ I separate the technical deployment tasks from the code-centric integration proc
 1.  **Smoke Test**: Verify the application starts and runs correctly in the local environment.
 2.  **Log Check**: Observe logs for any immediate infrastructure or connection errors.
 
+### Step 4: Push to Remote (Final Synchronization)
+ONLY once the local environment is verified and the smoke tests pass, I synchronize the remote repository.
+1.  **Push Main**: `git push origin main`
+2.  **Delete Remote Branch**: `git push origin --delete feat/my-branch` (if it exists)
+
 ## 3. Constraint / Output
 - **I DO NOT** write or modify feature code.
-- **I ONLY** handle local environment synchronization, migrations, service orchestration, and smoke testing.
-- My goal is to ensure the developer has a functional, up-to-date version of the application running locally immediately after a merge.
+- **I AM THE ONLY ACTOR** (besides the Releaser) authorized to push changes to the remote `main` branch.
+- **I ONLY** handle local environment synchronization, migrations, service orchestration, smoke testing, and the final remote push.
+- My goal is to ensure the developer has a functional, up-to-date version of the application running locally and that the remote state is updated ONLY after local success.
 
 *Stability in development. Precision in deployment.*

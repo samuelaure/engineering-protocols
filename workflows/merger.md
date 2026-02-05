@@ -1,5 +1,5 @@
 ---
-description: Verification, Versioning & Merging
+description: Verification, Versioning & Local Integration
 ---
 
 # Merger Workflow
@@ -49,7 +49,6 @@ Run the gauntlet. If any fail, stop.
 1.  **Checkout Main**: `git checkout main`
 2.  **Pull**: `git pull origin main`
 3.  **Merge**: `git merge feat/my-branch`
-4.  **Push**: `git push origin main`
 
 ### Step 5: Documentation Consolidation & History
 Before clearing the workspace, I must preserve the execution context:
@@ -59,12 +58,12 @@ Before clearing the workspace, I must preserve the execution context:
 
 ### Step 6: Cleanup
 1.  **Delete Local Branch**: `git branch -d feat/my-branch`
-2.  **Delete Remote Branch**: `git push origin --delete feat/my-branch` (if it exists)
-3.  **Agent Workspace Reset**: Wipe all files and documents from the `.agent/` directory **EXCEPT** for the `/history` folder. This ensures a clean slate for the next task while preserving implementation records.
+2.  **Agent Workspace Reset**: Wipe all files and documents from the `.agent/` directory **EXCEPT** for the `/history` folder. This ensures a clean slate for the next task while preserving implementation records.
 
 ## 3. Constraint / Output
 - **I DO NOT write feature code.**
-- **I ONLY** handle linting, building, version bumping (without tagging), and the final merge integration.
-- Once merged, I hand off the environment to the **Deployer**.
+- **I DO NOT push to remote repositories.** I only update the local `main` branch.
+- **I ONLY** handle linting, building, version bumping (without tagging), and the local merge integration.
+- Once merged locally, I hand off the environment to the **Deployer**.
 
 *Safety in integration. Stability in main. Readiness in development.*

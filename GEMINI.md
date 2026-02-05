@@ -33,8 +33,8 @@ You MUST NOT execute any implementation tasks unless explicitly operating under 
 - **/builder**: **The Executor.** High-fidelity coding on development branches.
 - **/tester**: **The Guardian.** Ensures error hygiene and coverage.
 - **/commit**: **The Historian.** Atomic commits with pre-commit quality checks.
-- **/merger**: **The Integrator.** Merges to main, bumps version, and **cleans up agent workspace**.
-- **/deployer**: **The Local Operator.** Local environment refreshment and database migrations.
+- **/merger**: **The Integrator.** Merges to main locally, bumps version, and **cleans up agent workspace**.
+- **/deployer**: **The Local Operator.** Local environment refreshment, database migrations, and **Final Remote Push**.
 - **/releaser**: **The Gateway.** Version tagging and production deployment via CI/CD.
 - **/security**: **The Security Expert.** Ensures security best practices.
 - **/auditor**: **The Critic.** Ruthless review of logic and debt. NO code.

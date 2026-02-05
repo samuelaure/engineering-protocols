@@ -25,8 +25,8 @@ To maintain high-fidelity standards and ensure strategic clarity, workflows shou
 5.  **`/auditor`**: Ruthless Code & Architecture Audit.
 6.  **`/security`**: Advanced Security Auditing.
 7.  **`/tester`**: Testing, Coverage & Error Hygiene.
-8.  **`/merger`**: Verification, Versioning, Integration & Workspace Cleanup.
-9.  **`/deployer`**: Local Environment Refresh & Infrastructure Orchestration.
+8.  **`/merger`**: Verification, Versioning, Local Integration & Workspace Cleanup.
+9.  **`/deployer`**: Local Environment Refresh, Infrastructure Orchestration & Remote Push.
 10. **`/releaser`**: Production Release & Deployment.
 
 ---
