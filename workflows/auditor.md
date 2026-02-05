@@ -22,8 +22,10 @@ I am the **Chief Skeptic**. My job is to ruthlessly criticize logic, architectur
 
 ### C. Shared Infrastructure & Mesh Protocols
 1.  **Shared Mesh Alignment**: Verify that the implementation avoids local service duplication where shared infrastructure is available (e.g., global Redis/Postgres/S3).
-2.  **Zero-Local-Overhead**: Audit for hardcoded local service dependencies. Ensure `docker-compose.override.yml.example` correctly deactivates redundant local services for production alignment.
-3.  **Cross-Service Communication**: Audit connection strings and mesh networking logic to ensure they use the correct production aliases and security protocols.
+2.  **Zero-Local-Overhead (Service Sprawl)**: Ruthlessly audit for redundant local database or cache containers. Projects MUST use logical isolation in the Backbone unless a strict technical justification for isolation is provided.
+3.  **URL-Driven Routing**: Verify that the app is accessed via the Mesh Gateway (`*.localhost`) and that Traefik/Nginx labels are correctly implemented.
+4.  **Port Hardcoding**: Audit the codebase for hardcoded port numbers. All port-related logic must use dynamic environment injection (`${PORT}`).
+5.  **Cross-Service Communication**: Audit connection strings and mesh networking logic to ensure they use the correct production aliases and security protocols.
 
 ### D. Monitoring & Support Protocol
 1.  **Notification Speed**: Audit the alert system. Developers/Admins must be notified within seconds of a critical failure, instability, or shutdown.

@@ -48,14 +48,19 @@ I read the **"Folder Structure"** and **"Files to Create"** sections of the `PLA
 -   **Configs**: `tsconfig.json`, `.eslintrc`, `.prettierrc` (Standardized).
 -   **Commit**: `git add . && git commit -m "feat: scaffold base configurations"` (Exclude source code files for now).
 
-### Step 4: Infrastructure Connection (If applicable)
-If the `PLAN.md` specifies a Database:
-1.  **Env**: Create `.env` and `.env.example`.
-2.  **Connection**: Set `DATABASE_URL` to point to the Shared Infrastructure (e.g., `postgresql://user:pass@localhost:5432/db_name` for local).
-3.  **Docker**: 
-    -   Create `docker-compose.yml` containing the App and all required auxiliary services (Postgres, Redis, etc.) so it's fully functional for any developer.
-    -   Create `docker-compose.override.yml.example` which **deactivates** the auxiliary services (e.g., using `entrypoint: ["echo", "service deactivated"]` or `profiles`) and configures the App to connect to the `shared-mesh` network.
-4.  **Local Override**: Create a local `docker-compose.override.yml` for development if needed, but ensure it is **Git Ignored**.
+### Step 4: Infrastructure Connection (Local Cloud Mesh)
+If the `PLAN.md` specifies a Database or Web Service:
+1.  **Env**: Create `.env` and `.env.example`. 
+    - **Backbone Defaults**: Pre-configure connection strings to point to the Shared Backbone services by default (e.g., `postgresql://user:pass@localhost:5432/db_name`).
+2.  **Connection**: Set `DATABASE_URL` and other service variables using the Logical Multitenancy prefixes defined in the Architecture.
+3.  **Docker (Mesh-Ready)**: 
+    - Create `docker-compose.yml` containing the App.
+    - **Sentinel Labels**: Add the mandatory Traefik/Nginx labels to the app service for auto-routing.
+      - **Local Rule**: `Host([project].localhost)`
+      - **Production Rule**: `Host([project].9nau.com)`
+    - **Network**: Attach the app to the `shared-mesh` external network.
+4.  **Local Overrides**: Create `docker-compose.override.yml.example` which **deactivates** any project-specific auxiliary services to prefer the shared Backbone, but provides the fallback config for isolated development.
+5.  **Port Warden**: If the app requires a specific port, register it in the central registry (e.g., `.agent/PORT_REGISTRY.json`) or use the deterministic port calculated in the Plan.
 
 ### Step 5: Final Lockdown & Runtime Verification
 // turbo
