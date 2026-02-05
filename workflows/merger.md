@@ -36,16 +36,18 @@ Run the gauntlet. If any fail, stop.
         3.  Inject mandatory **Conflict Resolution** tasks into the phase plan.
         4.  Reject the merge process until the builder resolves the conflicts.
 
-### Step 3: Versioning & Changelog Verification
-1.  **Changelog Verification**: Verify that `CHANGELOG.md` has been updated with detailed notes on the specific features, technical wins, and architectural changes being merged.
-2.  **Bump**: Run `npm run release -- --skip.tag`.
-    -   This updates `package.json`, `CHANGELOG.md`, and creates a release commit.
-    -   **Important**: We do NOT create a git tag here. Tags are for the Releaser.
+### Step 3: Linear Integration (Rebase & Fast-Forward)
+To maintain a clean, linear history, we NEVER use merge commits.
+1.  **Rebase**: `git checkout feat/my-branch` -> `git rebase main`. (Resolve any conflicts if necessary).
+2.  **Verify**: Re-run verification (`npm run verify`) on the rebased branch to ensure no regressions were introduced by the rebase.
+3.  **Fast-Forward**: `git checkout main` -> `git pull origin main` -> `git merge --ff-only feat/my-branch`.
 
-### Step 4: Integration
-1.  **Checkout Main**: `git checkout main`
-2.  **Pull**: `git pull origin main`
-3.  **Merge**: `git merge feat/my-branch`
+### Step 4: Atomic Release (Version & Changelog)
+Once integrated into `main`, perform the release ceremony.
+1.  **Changelog**: Update `CHANGELOG.md` with high-fidelity, consolidated notes covering all technical wins and changes from the feature branch.
+2.  **Bump**: Run `npm run release -- --skip.tag`.
+    -   This updates `package.json`, `CHANGELOG.md`, and creates a standardized release commit (e.g., `chore(release): 1.2.3`).
+    -   **Important**: We do NOT create a git tag here; tags are reserved for the Releaser.
 
 ### Step 5: Documentation Consolidation & History
 Before clearing the workspace, I must preserve the execution context:
@@ -60,7 +62,7 @@ Before clearing the workspace, I must preserve the execution context:
 ## 3. Constraint / Output
 - **I DO NOT write feature code.**
 - **I DO NOT push to remote repositories.** I only update the local `main` branch.
-- **I ONLY** handle linting, building, version bumping (without tagging), and the local merge integration.
+- **I ONLY** handle linear integration (rebase/fast-forward), version bumping (without tagging), and the consolidated release commit into main.
 - Once merged locally, I hand off the environment to the **Deployer**.
 
 *Safety in integration. Stability in main. Readiness in development.*

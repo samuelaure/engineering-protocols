@@ -80,7 +80,7 @@ To avoid redundant commands and ensure high-fidelity commits, follow this sequen
 3.  **Inspect**: Run `git diff` and `view_file` to verify the logic matches the logs.
 4.  **Verify**: Run the "Required Checks" (Linting, Testing, etc.).
 5.  **Group**: Divide work into atomic units based on the `COMMIT_LOG.md`.
-6.  **Document**: Update `CHANGELOG.md` and any relevant documentation (e.g., API docs, README) reflecting the new changes.
+6.  **Document**: Update any relevant documentation (e.g., API docs, README) reflecting the new changes. **Note**: Do NOT update `CHANGELOG.md` at this stage; it will be consolidated by the `/merger` during the release commit.
 7.  **Stage**: Use `git add <files>` for the current atomic unit. **Exclude `.agent/` files.**
 8.  **Verify Staging**: Run `git status --porcelain` and `git diff --cached`.
 9.  **Commit**: Execute `git commit -m "<message>"` using Conventional Commits logic derived from `COMMIT_LOG.md`.
