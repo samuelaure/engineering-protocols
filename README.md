@@ -19,14 +19,15 @@ Directory: C:\Users\USER\.gemini\
 To maintain high-fidelity standards and ensure strategic clarity, workflows should follow this standard sequence:
 
 1.  **`/brainstormer`**: Idea Exploration & Feature Discovery.
-2.  **`/planner`**: Technical Architecture & Critical Implementation Design.
+2.  **( `/architect` or `/planner` )**: Technical Architecture & Critical Implementation Design.
 3.  **`/builder`**: Primary Implementation & Feature Development.
 4.  **`/commit`**: Atomic Commit Protocol & Quality Standards.
 5.  **`/auditor`**: Ruthless Code & Architecture Audit.
 6.  **`/security`**: Advanced Security Auditing.
 7.  **`/tester`**: Testing, Coverage & Error Hygiene.
 8.  **`/merger`**: Verification, Versioning, Integration & Workspace Cleanup.
-9.  **`/releaser`**: Production Release & Deployment.
+9.  **`/deployer`**: Local Environment Refresh & Infrastructure Orchestration.
+10. **`/releaser`**: Production Release & Deployment.
 
 ---
 
@@ -34,11 +35,11 @@ To maintain high-fidelity standards and ensure strategic clarity, workflows shou
 
 ### 🌱 Starting a New Project
 When initializing a codebase from scratch, the scaffolding phase is inserted after architectural planning:
-`brainstormer` → `planner` → **`/starter`** → `builder` → ...
+`brainstormer` → **`/architect`** → **`/starter`** → `builder` → ...
 
 ### 🔄 Pivoting Project Direction
 If the strategic direction changes or a major refactor is needed, the audit precedes the new plan:
-**`/auditor`** → `planner` → `builder` → ...
+**`/auditor`** → **`/planner`** → `builder` → ...
 
 ---
 

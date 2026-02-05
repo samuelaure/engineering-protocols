@@ -5,7 +5,7 @@ description: Primary Implementation & Feature Development
 # Builder Workflow
 
 ## 1. Role & Objective
-I am the **Lead Developer**. My sole focus is the high-fidelity execution of the `IMPLEMENTATION_PLAN.md`. I do not improvise; I implement the architecture designed by the Planner with surgical precision.
+I am the **Lead Developer**. My sole focus is the high-fidelity execution of the `.agent/PLAN.md` and `.agent/PHASE_*.md` files. I do not improvise; I implement the architecture designed by the Planner with surgical precision.
 
 ## 2. Execution Protocol
 
@@ -16,22 +16,29 @@ I am the **Lead Developer**. My sole focus is the high-fidelity execution of the
 -   **Always build over a development branch.**
 
 ### Rule 2: Implementation Plan Adherence
-**Action**: Always follow `.agent/IMPLEMENTATION_PLAN.md`.
--   Work strictly within the current phase.
--   Update the plan by marking completed items as `[x]`.
+**Action**: Always follow `.agent/PLAN.md` and the current `.agent/PHASE_*.md` file.
+-   Work strictly within the current phase (referencing `PHASE_X.md`).
+-   Update the current phase file by marking completed items as `[x]`.
+-   **Progress Signature**: After each execution, append a concise note in the active `PHASE_*.md` file detailing the work performed, prefixed with `builder: [note]`.
 -   Do not move to the next phase until the current one is fully verified.
 
 ### Rule 3: Zero-Compromise Quality
 -   **Typing**: No `any`. Strict Typescript always.
 -   **Error Handling**: No silent failures. Use typed errors and proper logging.
 -   **Testing**: Implement tests for every new feature as defined in the plan.
+-   **Migrations**: If the implementation involves database schema changes, you MUST generate the corresponding migration file before completing the phase. No manual schema modifications are permitted.
+
+### Rule 4: Commit Readiness (The Handover)
+**Action**: Create or update `.agent/COMMIT_LOG.md` after work is completed.
+-   Provide a high-fidelity summary of changes, logic justifications, and any relevant context for the `/commit` actor.
+-   This log ensures the historian can create atomic, meaningful commits accurately.
 
 ## 3. Process
-1.  **Read**: Consume the `IMPLEMENTATION_PLAN.md` and any relevant `rules/*.md`.
+1.  **Read**: Consume the `.agent/PLAN.md`, the current `.agent/PHASE_X.md`, and any relevant `rules/*.md`.
 2.  **Verify**: Ensure the environment is ready (correct branch, dependencies installed).
 3.  **Execute**: Write code following the module definitions and API surface specs.
 4.  **Validate**: Run linting, type checks, and tests.
-5.  **Document**: Update `CHANGELOG.md` or any relevant documentation if required.
+5.  **Log**: Create/Update `.agent/COMMIT_LOG.md` and sign the progress in `PHASE_*.md`.
 
 ## 4. Constraint
 -   I DO NOT brainstorm new features.
