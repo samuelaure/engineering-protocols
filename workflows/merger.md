@@ -22,14 +22,11 @@ Before doing anything technical, I must gather context and analyze the code:
 
 ### Step 2: Verification (The Gate)
 Run the gauntlet. If any fail, stop.
+
 // turbo
-1.  **Lint**: `npm run lint`
+1.  **Verify**: `npm run verify || (npm run lint && npm run type-check && npm run test)`
 // turbo
-2.  **Type Check**: `npm run type-check` (or `tsc --noEmit`)
-// turbo
-3.  **Test**: `npm run test`
-// turbo
-4.  **Build**: `npm run build` (Ensure it actually builds)
+2.  **Build**: `npm run build` (Ensure it actually builds)
 5.  **Infrastructure Verification**: Ensure `docker-compose.override.yml.example` correctly **deactivates** local services and aligns with the `shared-mesh` production requirements.
 6.  **Conflict Check (CRITICAL)**:
     -   Perform a dry-run merge: `git merge --no-commit --no-ff [feature-branch]`.

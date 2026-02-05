@@ -37,7 +37,7 @@ I am the **Lead Developer**. My sole focus is the high-fidelity execution of the
 1.  **Read**: Consume the `.agent/PLAN.md`, the current `.agent/PHASE_X.md`, and any relevant `rules/*.md`.
 2.  **Verify**: Ensure the environment is ready (correct branch, dependencies installed).
 3.  **Execute**: Write code following the module definitions and API surface specs.
-4.  **Validate**: Run linting, type checks, and tests.
+4.  **Validate**: Run centralized verification (`npm run verify`) or individual checks (lint, type checks, and tests).
 5.  **Log**: Create/Update `.agent/COMMIT_LOG.md` and sign the progress in `PHASE_*.md`.
 
 ## 4. Constraint

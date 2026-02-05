@@ -38,7 +38,7 @@ I create a `package.json` with the **Professional Standard** metadata (as define
 -   `version`: `0.0.0`
 -   `author`: `{ "name": "Samuel Aure", "url": "https://www.samuelaure.com" }`
 -   `license`: `Proprietary`
--   `scripts`: `dev`, `build`, `start`, `lint`, `format`, `test`, `release` (plus any others from the Plan).
+-   `scripts`: `dev`, `build`, `start`, `lint`, `format`, `test`, `verify`, `release` (plus any others from the Plan).
 -   `engines`: `{ "node": ">=20.0.0" }`
 
 **Install**: Run `npm install` for the specific dependencies listed in the **Starter Instructions** section of the `PLAN.md`.
@@ -59,7 +59,7 @@ If the `PLAN.md` specifies a Database:
 
 ### Step 5: Final Lockdown & Runtime Verification
 // turbo
-1.  **Static Check**: Run `npm run lint` and `npm run build` (if applicable) to ensure the skeleton is valid.
+1.  **Static Check**: Run `npm run verify` (or `lint` and `build`) to ensure the skeleton is valid.
 // turbo
 2.  **Runtime Verification (CRITICAL)**: 
     -   Launch the application (e.g., `npm run dev` or `npm start`).

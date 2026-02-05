@@ -15,9 +15,9 @@ Run the following checks locally:
 4.  **Test**: Run relevant unit tests for the changes made.
 
 // turbo
-Run this sequence before staging files:
+Run this sequence before staging files (prioritize 'verify' if available):
 ```bash
-npm run format && npm run lint && npm run type-check && npm run test
+npm run verify || (npm run format && npm run lint && npm run type-check && npm run test)
 ```
 
 **Note on Automation**: If the project has automated hooks (like Husky or lint-staged) that perform these checks on commit, you may skip manual execution IF AND ONLY IF you are confident the hooks are active and covering the required checks. However, manual verification is always safer.
