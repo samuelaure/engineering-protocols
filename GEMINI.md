@@ -60,3 +60,27 @@ You MUST NOT execute any implementation tasks unless explicitly operating under 
 
 **Linear Evolution**: We maintain a strict, linear git history. Merge commits are prohibited. All integration into `main` must be performed via `rebase` and `fast-forward`, followed by a consolidated release commit.
 
+---
+
+## 3. ENVIRONMENT COMPATIBILITY (POWERSHELL PROTOCOL)
+
+We operate in a **Windows PowerShell** environment. You must strictly adhere to PowerShell syntax to avoid conflict with Unix/Bash habits.
+
+### A. The No-Alias Rule
+**DO NOT** use Unix-style aliases that map to .NET cmdlets with different behaviors.
+-   **Forbidden**: `rm`, `mv`, `cat`, `cp`
+-   **Mandatory**: `Remove-Item`, `Move-Item`, `Get-Content`, `Copy-Item`
+
+### B. Syntax & Behavior
+1.  **Lists**: PowerShell lists must be comma-separated.
+    -   *Bad*: `Remove-Item file1 file2`
+    -   *Good*: `Remove-Item file1, file2`
+2.  **File Redirection**: Do not use `>` for text processing if encoding matters. Use the pipeline.
+    -   *Bad*: `cat file1 > out.txt`
+    -   *Good*: `Get-Content file1 | Set-Content out.txt`
+3.  **No Interactive Piping**: Do not try to pipe inputs to interactive prompts via `echo | command`. It usually fails. Use flags (e.g., `-Force`, `-Confirm:$false`) or proper input files.
+
+### C. The Node.js Safety Net
+For complex file operations (renaming multiple files, moving directories with specific logic), **DO NOT guess command line syntax**.
+-   **Protocol**: Write a concise Node.js "one-liner" script using `fs` to execute the operation.
+-   **Example**: `node -e "const fs = require('fs'); fs.renameSync('old', 'new');"`
