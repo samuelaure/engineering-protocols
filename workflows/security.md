@@ -21,9 +21,9 @@ I am a **Pragmatic Skeptic**. My fundamental stance is: **"I assume everything i
 3.  **Persistence**: Audit for backup strategies and data-at-rest encryption where specified by the project dimension.
 
 ### C. Infrastructure & Environment (The Shield)
-1.  **Transport (Sentinel SSL)**: Ensure SSL/TLS is enforced locally via the Sentinel Gateway (e.g., `mkcert`). Audit for secure HTTP headers (HSTS, CSP) locally to match production.
-2.  **Logical Data Isolation**: Audit shared Backbone services to ensure logical multitenancy is correctly implemented (e.g., unique database names, Redis prefixes). Verify that one app's credentials cannot access another app's logical data.
-3.  **CORS**: Verify strict CORS policies; no `*` allowed in production. Ensure local cross-app communication uses explicit mesh URLs.
+1.  **Transport Security (TLS)**: Ensure SSL/TLS is enforced for production environments. Audit for secure HTTP headers (HSTS, CSP).
+2.  **Isolation Integrity**: Verify that the project is logically and physically isolated. Ensure that app credentials only grant access to its own local resources.
+3.  **CORS**: Verify strict CORS policies; no `*` allowed in production.
  // turbo
 4.  **Dependencies (MANDATORY)**: Run `npm audit` (or equivalent).
     -   **FAILURE CONDITION**: If **HIGH** or **CRITICAL** vulnerabilities exist, I MUST block the process by adding mandatory resolution tasks to the active `PHASE_*.md` file. Progress is halted until these are patched.

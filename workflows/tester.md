@@ -19,7 +19,7 @@ I MUST verify that the codebase meets these specific thresholds. Failure to meet
 
 ### B. Testing Layers
 1.  **Unit**: Deep logic validation in isolation.
-2.  **Integration (Mesh Connectivity)**: Boundary testing (Auth -> Service -> persistence layers). Specifically verify that the app can connect to Backbone services via the shared-mesh network using local cloud URLs.
+2.  **Integration (Service Connectivity)**: Boundary testing (Auth -> Service -> persistence layers). Specifically verify that the app can connect to its local services (Postgres, Redis, etc.) using environment variables.
 3.  **E2E**: Critical user journeys (The "Happy Path" and the "Brutal Path").
 
 ### B. The "Skeptic" Checklist

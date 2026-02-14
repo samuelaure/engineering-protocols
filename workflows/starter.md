@@ -48,19 +48,15 @@ I read the **"Folder Structure"** and **"Files to Create"** sections of the `PLA
 -   **Configs**: `tsconfig.json`, `.eslintrc`, `.prettierrc` (Standardized).
 -   **Commit**: `git add . && git commit -m "feat: scaffold base configurations"` (Exclude source code files for now).
 
-### Step 4: Infrastructure Connection (Local Cloud Mesh)
+### Step 4: Isolated Infrastructure
 If the `PLAN.md` specifies a Database or Web Service:
 1.  **Env**: Create `.env` and `.env.example`. 
-    - **Backbone Defaults**: Pre-configure connection strings to point to the Shared Backbone services by default (e.g., `postgresql://user:pass@localhost:5432/db_name`).
-2.  **Connection**: Set `DATABASE_URL` and other service variables using the Logical Multitenancy prefixes defined in the Architecture.
-3.  **Docker (Mesh-Ready)**: 
-    - Create `docker-compose.yml` containing the App.
-    - **Sentinel Labels**: Add the mandatory Traefik/Nginx labels to the app service for auto-routing.
-      - **Local Rule**: `Host([project].localhost)`
-      - **Production Rule**: `Host([project].9nau.com)`
-    - **Network**: Attach the app to the `shared-mesh` external network.
-4.  **Local Overrides**: Create `docker-compose.override.yml.example` which **deactivates** any project-specific auxiliary services to prefer the shared Backbone, but provides the fallback config for isolated development.
-5.  **Port Warden**: If the app requires a specific port, register it in the central registry (e.g., `.agent/PORT_REGISTRY.json`) or use the deterministic port calculated in the Plan.
+    - **Local Defaults**: Pre-configure connection strings to point to the local standalone services (e.g., `postgresql://user:pass@localhost:5432/db_name`).
+2.  **Connection**: Set `DATABASE_URL` and other service variables using isolated configuration.
+3.  **Docker (Isolated)**: 
+    - Create `docker-compose.yml` containing the App AND its required services (Postgres, Redis, etc.).
+    - **Isolation**: Ensure the project has zero dependencies on external/shared networks.
+4.  **Port Management**: If the app requires a specific port, ensure it is configured via dynamic environment variables to prevent collisions.
 
 ### Step 5: Final Lockdown & Runtime Verification
 // turbo

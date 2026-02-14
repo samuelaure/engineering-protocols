@@ -27,7 +27,6 @@ Run the gauntlet. If any fail, stop.
 1.  **Verify**: `npm run verify || (npm run lint && npm run type-check && npm run test)`
 // turbo
 2.  **Build**: `npm run build` (Ensure it actually builds)
-5.  **Infrastructure Verification**: Ensure `docker-compose.override.yml.example` correctly **deactivates** local services and aligns with the `shared-mesh` production requirements.
 6.  **Conflict Check (CRITICAL)**:
     -   Perform a dry-run merge: `git merge --no-commit --no-ff [feature-branch]`.
     -   **FAILURE CONDITION**: If conflicts exist, I MUST:

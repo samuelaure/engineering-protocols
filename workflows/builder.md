@@ -25,7 +25,7 @@ I am the **Lead Developer**. My sole focus is the high-fidelity execution of the
 ### Rule 3: Zero-Compromise Quality
 -   **Typing**: No `any`. Strict Typescript always.
 -   **Error Handling**: No silent failures. Use typed errors and proper logging.
--   **Mesh-Ready Logic**: Any logic involving ports or external service URLs MUST use dynamic environment injection (`${PORT:-3000}`). Hardcoding local ports or `localhost` URLs in source code is prohibited.
+-   **Isolated Logic**: Any logic involving ports or external service URLs MUST use dynamic environment injection (`${PORT:-3000}`). Hardcoding local ports or `localhost` URLs in source code is prohibited.
 -   **Testing**: Implement tests for every new feature as defined in the plan.
 -   **Migrations**: If the implementation involves database schema changes, you MUST generate the corresponding migration file before completing the phase. No manual schema modifications are permitted.
 

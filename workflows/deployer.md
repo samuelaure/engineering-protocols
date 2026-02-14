@@ -11,13 +11,6 @@ I separate the technical deployment tasks from the code-centric integration proc
 
 ## 2. Process
 
-### Step 0: Pre-Flight Mesh Verification
-// turbo
-1.  **Backbone Check**: Verify that the shared Backbone services (Postgres, Redis) are reachable.
-// turbo
-2.  **Sentinel Check**: Ensure the Local Gateway (Traefik/Nginx) is running and the `shared-mesh` network is available.
-3.  **Failure Protocol**: If the mesh is down, offer to start the "Backbone" stack or abort to prevent deployment into a non-functional environment.
-
 ### Step 1: Environment Refresh
 // turbo
 1.  **Dependencies**: Ensure all dependencies are fresh: `npm install`.

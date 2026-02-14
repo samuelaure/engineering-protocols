@@ -14,7 +14,6 @@ I am the **Releaser**. I am the final gatekeeper before the code touches Product
 1.  **Security Scan**: Run `npm audit` or specific security scripts.
 2.  **Documentation**: Ensure `README.md` and API docs are consistent with the new code.
 3.  **Performance**: Quick check of bundle size or load times (if applicable).
-4.  **Infrastructure Verification**: Ensure `docker-compose.override.yml.example` correctly **deactivates** local services and aligns with the `shared-mesh` production requirements.
 
 ### Step 2: Tagging (The Release)
 We capture the current state of `main` as a Release.

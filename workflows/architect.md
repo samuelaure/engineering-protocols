@@ -56,17 +56,14 @@ I MUST generate the following files in the `[Workspace Root]/.agent/` directory:
 -   **Dependencies**: Explicit `npm install` list.
 -   **Folder Structure**: The exact tree to generate.
 
-#### E. Connectivity Schema (Local Cloud)
-- **Service Mesh Entry**: Define the standardized URLs for the project.
-  - **Local**: `http://<project-name>.localhost`
-  - **Production**: `https://<project-name>.9nau.com`
-- **Traefik/Nginx Labels**: Specify the labels required for the Edge Proxy to handle these hostnames.
-- **Backbone Integration**: Map which shared services (Postgres, Redis, S3, etc.) the app will consume from the persistent Backbone.
-- **Port Warden Strategy**: If direct port access is required, specify the deterministic port assignment from the central registry to prevent collisions.
+#### E. Local Infrastructure (Isolated)
+- **Service Isolation**: Define the local standalone services required (Postgres, Redis, etc.).
+- **Environment Injection**: Specify the environment variables required for service connectivity.
+- **Port Management**: If specific port access is required, specify the deterministic port assignment to prevent collisions.
 
-#### F. Shared Infrastructure Strategy
-- **Service Deactivation**: Define how `docker-compose.override.yml.example` should deactivate local counterparts of Backbone services.
-- **Logical Multitenancy**: Specify the logical database names or Redis key-prefixes that ensure data isolation within the shared infrastructure.
+#### F. Infrastructure Strategy
+- **Docker Compose**: Define the standard `docker-compose.yml` for isolated local development.
+- **No Shared Dependencies**: Explicitly ensure the project has zero dependencies on external/shared services to boot or function.
 
 #### G. Execution Roadmap
 -   Overview of the first 2-3 phases and their objectives.

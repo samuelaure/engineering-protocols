@@ -20,12 +20,11 @@ I am the **Chief Skeptic**. My job is to ruthlessly criticize logic, architectur
 3.  **Retry Logic**: Audit for smart retry strategies on transient failures.
 4.  **Error Messaging**: Ensure internal errors are handled silently (logged) while the user receives a polite, actionable notification (better than "something went wrong"). No partial breaks.
 
-### C. Shared Infrastructure & Mesh Protocols
-1.  **Shared Mesh Alignment**: Verify that the implementation avoids local service duplication where shared infrastructure is available (e.g., global Redis/Postgres/S3).
-2.  **Zero-Local-Overhead (Service Sprawl)**: Ruthlessly audit for redundant local database or cache containers. Projects MUST use logical isolation in the Backbone unless a strict technical justification for isolation is provided.
-3.  **URL-Driven Routing**: Verify that the app is accessed via the Mesh Gateway (`*.localhost`) and that Traefik/Nginx labels are correctly implemented.
+### C. Isolation & Dynamic Configuration
+1.  **Strict Isolation**: Verify that the project is fully isolated and does not depend on shared/external database or cache instances to function.
+2.  **Container Hygiene**: Audit for redundant or unused local containers.
+3.  **Dynamic Configuration**: Verify that all connection strings and environment-specific values use dynamic injection (e.g., `${VARIABLE}`) rather than hardcoded values.
 4.  **Port Hardcoding**: Audit the codebase for hardcoded port numbers. All port-related logic must use dynamic environment injection (`${PORT}`).
-5.  **Cross-Service Communication**: Audit connection strings and mesh networking logic to ensure they use the correct production aliases and security protocols.
 
 ### D. Monitoring & Support Protocol
 1.  **Notification Speed**: Audit the alert system. Developers/Admins must be notified within seconds of a critical failure, instability, or shutdown.
