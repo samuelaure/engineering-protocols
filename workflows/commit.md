@@ -53,7 +53,8 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 - **Imperative mood**: "Add feature" not "Added feature"
 - **No periods**: No dot at the end of the subject line
 - **Lowercase**: Keep the subject lowercase
-- **No agent files**: NEVER commit files located in the `.agent/` folder. This folder is for internal agent state and metadata, not project source code.
+- **No agent files (with one exception)**: NEVER commit files in the `.agent/` folder EXCEPT for `.agent/DOCUMENTATION.md` and `.agent/history/`. These two are committed because they represent permanent project knowledge, not transient agent state.
+  - `.gitignore` must have: `.agent/*` with `!.agent/DOCUMENTATION.md` and `!.agent/history/`
 
 ### Examples
 - `feat(auth): implement jwt token generation`

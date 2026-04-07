@@ -5,69 +5,289 @@ description: Project Initialization & Scaffolding
 # Starter Workflow
 
 ## 1. Role
-I am the **Executor**. I do not think; I obey the `.agent/PLAN.md` and `.agent/PHASE_*.md` files.
-My job is to go from "Empty Folder" to "Base Architecture Committed".
+I am the **Foundation Layer**. I go from "empty folder" to "running skeleton" with zero ambiguity.
+I obey `PLAN.md` and `PHASE_1.md` exactly. I do not improvise.
 
-## 2. Execution Sequence
+---
 
-### Step 1: Git Foundations (The Triple Start)
-I MUST initialize the repository with exactly these three atomic commits in order:
-1.  **Commit 1: Start**
-    -   Create `README.md` containing ONLY `# [project-name]`.
-    -   `git init`
-    -   `git add README.md && git commit -m "start"`
-2.  **Commit 2: Professional Docs**
-    -   Update `README.md` to be a high-fidelity, industry-standard document.
-    -   Include: Description, Stack, Quick Start, and Architecture overview based on the `PLAN.md`.
-    -   `git add README.md && git commit -m "docs: update README.md"`
-3.  **Commit 3: Workspace Hygiene**
-    -   Create a comprehensive `.gitignore`. It MUST include:
-        -   Environment files (`.env`).
-        -   System files (Mac/Windows).
-        -   Node modules (`node_modules`).
-        -   **The `.agent/` folder** (Crucial: agent-specific documents are for local orchestration only and MUST NOT be committed).
-    -   `git add .gitignore && git commit -m "chore: initial .gitignore"`
+## 2. Pre-Flight: Read the Project Type
 
-4.  **Remote**: (If provided) `git remote add origin [URL]`.
+**First action:** Read `PLAN.md` and confirm the project type (A/B/C/D/E/F/G/H from `GEMINI.md §4`).
+The type determines which scaffold template I apply. Do not proceed without it.
 
-### Step 2: The Contract (package.json)
-I create a `package.json` with the **Professional Standard** metadata (as defined in `GEMINI.md`), but with the **Dependencies** specified in the `.agent/PLAN.md`.
+---
 
-**Mandatory Metadata:**
--   `name`: `[project-name]`
--   `version`: `0.0.0`
--   `author`: `{ "name": "Samuel Aure", "url": "https://www.samuelaure.com" }`
--   `license`: `Proprietary`
--   `scripts`: `dev`, `build`, `start`, `lint`, `format`, `test`, `verify`, `release` (plus any others from the Plan).
--   `engines`: `{ "node": ">=20.0.0" }`
+## 3. Step 1: Git Foundations (All Types)
 
-**Install**: Run `npm install` for the specific dependencies listed in the **Starter Instructions** section of the `PLAN.md`.
+Three atomic commits, in order:
 
-### Step 3: Base Files & Structure
-I read the **"Folder Structure"** and **"Files to Create"** sections of the `PLAN.md` and generate them.
--   **Configs**: `tsconfig.json`, `.eslintrc`, `.prettierrc` (Standardized).
--   **Commit**: `git add . && git commit -m "feat: scaffold base configurations"` (Exclude source code files for now).
+```bash
+# Commit 1: The seed
+echo "# [project-name]" > README.md
+git init && git add README.md && git commit -m "start"
 
-### Step 4: Isolated Infrastructure
-If the `PLAN.md` specifies a Database or Web Service:
-1.  **Env**: Create `.env` and `.env.example`. 
-    - **Local Defaults**: Pre-configure connection strings to point to the local standalone services (e.g., `postgresql://user:pass@localhost:5432/db_name`).
-2.  **Connection**: Set `DATABASE_URL` and other service variables using isolated configuration.
-3.  **Docker (Isolated)**: 
-    - Create `docker-compose.yml` containing the App AND its required services (Postgres, Redis, etc.).
-    - **Isolation**: Ensure the project has zero dependencies on external/shared networks.
-4.  **Port Management**: If the app requires a specific port, ensure it is configured via dynamic environment variables to prevent collisions.
+# Commit 2: Professional docs
+# (Update README.md with full content from PLAN.md)
+git add README.md && git commit -m "docs: update README"
 
-### Step 5: Final Lockdown & Runtime Verification
+# Commit 3: Workspace hygiene
+# (Create .gitignore — see §8 for standard content)
+git add .gitignore && git commit -m "chore: initial .gitignore"
+```
+
+Remote (if provided): `git remote add origin [URL]`
+
+---
+
+## 4. Step 2: Type-Specific Scaffold
+
+### Type A — Platform Service / Type B — Product App
+
+```bash
+# package.json with mandatory metadata (§9)
+# tsconfig.json (strict mode)
+# .eslintrc + .prettierrc (standardized)
+# src/ structure per PLAN.md module definitions
+# docker-compose.yml (isolated: app + own postgres + own redis)
+# .env (local dev defaults) + .env.example (no real credentials)
+# prisma/schema.prisma (if DB required)
+```
+
+**Docker Compose mandatory structure:**
+```yaml
+services:
+  app:
+    container_name: [project-name]
+    restart: "no"           # Dev: no auto-restart; Production: unless-stopped
+    networks:
+      - app-network         # Internal isolation
+      - nau-network         # Platform mesh (if ecosystem service)
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.[name].rule=Host(`[name].localhost`)"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: [name]-postgres
+    # SECURITY: NO ports: definition — internal only
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: [name]-redis
+    command: redis-server --requirepass "${REDIS_PASSWORD}"   # S2: password mandatory
+    # SECURITY: NO ports: definition — internal only
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+  nau-network:
+    external: true          # Only if Type A or ecosystem-connected B
+```
+
+**⚠️ Security check (S1, S2):** Before committing `docker-compose.yml`, verify:
+- [ ] No `ports:` on postgres or redis
+- [ ] Redis has `--requirepass`
+
+### Type C — Mobile App (Expo)
+
+```bash
+npx create-expo-app@latest ./ --template blank-typescript
+# Configure app.json (name, slug, version)
+# src/screens/, src/components/, src/services/
+# services/ApiClient.ts → points to companion backend
+# No Docker, no docker-compose.yml
+```
+
+### Type D — Static / Brand Site
+
+```bash
+# Option 1: React + Vite
+npx create-vite@latest ./ --template react-ts
+
+# Option 2: Pure HTML/CSS/JS (no framework)
+# index.html, css/main.css, js/main.js
+
+# Mandatory:
+# - base font from Google Fonts (defined in PLAN.md)
+# - CSS variables for design tokens
+# - meta description, og:title, og:description, og:image
+```
+
+### Type E — Orchestration Glue
+
+```bash
+# Minimal Node.js TypeScript service
+# src/index.ts — main entry
+# src/skills/ or src/handlers/ — modular logic
+# docker-compose.yml — app only, no standalone DB unless stated in PLAN.md
+# Joins nau-network
+```
+
+### Type F — CLI Tool / Script
+
+```bash
+# package.json with bin field
+# src/cli.ts — commander-based entry
+# No docker-compose.yml unless explicitly required
+# README with Usage + Options sections
+```
+
+### Type G — Infrastructure Component
+
+```bash
+# docker-compose.yml only
+# .env + .env.example
+# README.md with setup steps
+# No application source code
+```
+
+### Type H — Standalone / Creative
+
+```bash
+# Follow PLAN.md. No enforced template.
+# Minimum: README.md + DOCUMENTATION.md + .gitignore
+# Still use conventional commits
+```
+
+---
+
+## 5. Step 3: Base Configuration Files
+
+**Standardized `tsconfig.json` (TypeScript projects):**
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}
+```
+
+**Standardized `.prettierrc`:**
+```json
+{
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2
+}
+```
+
+---
+
+## 6. Step 4: Environment Files
+
+```bash
+# .env — local dev defaults (auto-generated, in .gitignore)
+# .env.example — template with no real values (committed)
+
+# Key pattern:
+DATABASE_URL=postgresql://dev_user:dev_password@postgres:5432/[name]_dev
+REDIS_PASSWORD=local_dev_password_only
+JWT_SECRET=local_dev_secret_32chars_minimum_x
+NAU_SERVICE_KEY=                    # (if Platform Service)
+```
+
+**Rule (S3):** Local defaults must be clearly non-production values (e.g., `dev_password_only`).
+Production secrets are never stored locally and never committed.
+
+---
+
+## 7. Step 5: Runtime Verification
+
+```bash
+# 1. Infrastructure up
+docker compose up -d
+# 2. Dependencies installed
+npm install
+# 3. DB migrations (if applicable)
+npx prisma migrate dev
+# 4. Static checks
+npm run verify
+# 5. Runtime smoke test — run for 10 seconds, observe logs
+npm run dev
+```
+
 // turbo
-1.  **Static Check**: Run `npm run verify` (or `lint` and `build`) to ensure the skeleton is valid.
-// turbo
-2.  **Runtime Verification (CRITICAL)**: 
-    -   Launch the application (e.g., `npm run dev` or `npm start`).
-    -   Keep the process running for **~10 seconds**.
-    -   Observe logs and ensure no crashes or immediate errors occur.
-    -   This confirms the scaffold is functionally sound.
-3.  **Commit Architecture**: `git add . && git commit -m "feat: complete project architecture scaffolding"`
+If all pass: `git add . && git commit -m "feat: complete project architecture scaffolding"`
 
-## 3. Handoff
-Project is now ready for the **Builder**.
+---
+
+## 8. Standard `.gitignore`
+
+```gitignore
+# Environment
+.env
+.env.*
+!.env.example
+
+# Agent workspace (EXCEPT documentation and history)
+.agent/*
+!.agent/DOCUMENTATION.md
+!.agent/history/
+
+# Dependencies
+node_modules/
+.venv/
+
+# Build outputs
+dist/
+.next/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.code-workspace
+```
+
+---
+
+## 9. Mandatory `package.json` Metadata
+
+```json
+{
+  "name": "[project-name]",
+  "version": "0.0.0",
+  "author": { "name": "Samuel Aure", "url": "https://www.samuelaure.com" },
+  "license": "Proprietary",
+  "engines": { "node": ">=20.0.0" },
+  "scripts": {
+    "dev": "...",
+    "build": "...",
+    "start": "...",
+    "lint": "eslint ./src",
+    "format": "prettier --write ./src",
+    "type-check": "tsc --noEmit",
+    "test": "...",
+    "verify": "npm run format && npm run lint && npm run type-check && npm run test",
+    "release": "standard-version --skip.tag"
+  }
+}
+```
+
+---
+
+## 10. Handoff
+Project is ready for `/builder` when:
+- [ ] 3 foundation commits exist
+- [ ] `docker compose up -d` succeeds without errors
+- [ ] `npm run verify` passes
+- [ ] `npm run dev` starts without crashing
+- [ ] No database ports exposed
+- [ ] Redis has a password

@@ -26,14 +26,16 @@ I am the **Chief Skeptic**. My job is to ruthlessly criticize logic, architectur
 3.  **Dynamic Configuration**: Verify that all connection strings and environment-specific values use dynamic injection (e.g., `${VARIABLE}`) rather than hardcoded values.
 4.  **Port Hardcoding**: Audit the codebase for hardcoded port numbers. All port-related logic must use dynamic environment injection (`${PORT}`).
 
-### D. Monitoring & Support Protocol
-1.  **Notification Speed**: Audit the alert system. Developers/Admins must be notified within seconds of a critical failure, instability, or shutdown.
-2.  **Breadcrumbs**: Ensure sufficient logging (ID-linked, contextual) to allow a developer to fix an issue without asking the user "what happened?".
-3.  **Customer Service Readiness**: The system must provide high-quality support signals, ensuring stability and constant execution for the end-user.
+### D. Domain Ownership (The Ecosystem Guard)
+1.  **Duplication Scan**: Does this service reimplement a capability already owned by another naŭ Platform service? Check against `SERVICE_MAP.md`.
+2.  **API-First Compliance**: Any cross-service dependency must be via REST API, never via shared database access.
+3.  **SERVICE_MAP Currency**: Is `DOCUMENTATION.md` current? Does `SERVICE_MAP.md` reflect this service's actual API surface?
+4.  **Coupling Risk**: Are any two services becoming so interdependent that one cannot function without the other? Flag for decoupling.
 
-### E. Temporary Audit Priority: Standardized Verification
-1.  **Protocol Presence**: Check if the project implements a standardized `verify` script (preferably using `turbo`) in `package.json` that orchestrates `format`, `lint`, `type-check`, and `test`.
-2.  **Gap Identification**: If the project nature warrants these checks but the `verify` script is missing, **MANDATE** its implementation in the audit report.
+### E. Monitoring & Support
+1.  **Alert Speed**: Are critical failures surfaced within seconds? Is Zazu configured to notify on service down?
+2.  **Breadcrumbs**: Can a developer diagnose any failure from logs alone, without asking the user "what happened?"
+3.  **Health Endpoint**: Does the service expose `GET /health`? This is a hard requirement for production services.
 
 ## 3. The "Ruthless Review"
 1.  Review the `PLAN.md`, `PHASE_*.md` files, and the Codebase.

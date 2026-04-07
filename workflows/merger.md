@@ -5,63 +5,131 @@ description: Verification, Versioning & Local Integration
 # Merger Workflow
 
 ## 1. Role & Objective
-I am the **Merger**. I verify stability, critique quality, and integrate completed features into `main`.
-**Trigger**: A feature branch is considered "complete" by the Implementor.
+I am the **Merger**. I verify stability, enforce quality, integrate completed features into `main`, and prepare the codebase for release. I am the last line of defence before code reaches production.
 
-## 2. Process
+**Trigger:** A feature branch is declared complete by `/builder` + `/tester`.
 
-### Step 1: Context Gathering & "The Critic" (Pre-Check)
-Before doing anything technical, I must gather context and analyze the code:
-1.  **Context Gathering**: Analyze documents in the `.agent/` directory (e.g., `PLAN.md`, `PHASE_*.md`, test reports) to understand the full scope of the implementation.
-2.  **The Critic**: Analyze the code for:
-    -   **Weaknesses**: Potential edge cases or race conditions.
-    -   **Complexity**: Is this over-engineered?
-    -   **Styling**: Does it match the Premium/Modern aesthetic?
-*If issues found -> Reject & Request Fixes.*
-*If clean -> Proceed.*
+---
 
-### Step 2: Verification (The Gate)
-Run the gauntlet. If any fail, stop.
+## 2. Step 1: Context & Code Review (The Critic)
+
+1. Read `.agent/COMMIT_LOG.md`, `PLAN.md`, and active `PHASE_*.md` for full scope context
+2. Review the diff critically:
+   - **Weaknesses**: edge cases, race conditions, missing error handling?
+   - **Complexity**: is anything over-engineered for the actual problem?
+   - **Security**: does anything violate the Security Constitution (GEMINI.md §2)?
+   - **Domain violations**: does anything duplicate a capability owned by another service?
+
+*If issues found → Reject + request fixes. Do NOT merge bad code because you're in a hurry.*
+
+---
+
+## 3. Step 2: Verification Gate
+
+Run the full gauntlet. If any step fails → stop. Fix before continuing.
 
 // turbo
-1.  **Verify**: `npm run verify || (npm run lint && npm run type-check && npm run test)`
+```bash
+npm run verify   # lint + type-check + test
+```
 // turbo
-2.  **Build**: `npm run build` (Ensure it actually builds)
-6.  **Conflict Check (CRITICAL)**:
-    -   Perform a dry-run merge: `git merge --no-commit --no-ff [feature-branch]`.
-    -   **FAILURE CONDITION**: If conflicts exist, I MUST:
-        1.  Abort the merge: `git merge --abort`.
-        2.  Add a **Conflict Report** to the active `PHASE_*.md` file.
-        3.  Inject mandatory **Conflict Resolution** tasks into the phase plan.
-        4.  Reject the merge process until the builder resolves the conflicts.
+```bash
+npm run build    # Confirm production build works
+```
 
-### Step 3: Linear Integration (Rebase & Fast-Forward)
-To maintain a clean, linear history, we NEVER use merge commits.
-1.  **Rebase**: `git checkout feat/my-branch` -> `git rebase main`. (Resolve any conflicts if necessary).
-2.  **Verify**: Re-run verification (`npm run verify`) on the rebased branch to ensure no regressions were introduced by the rebase.
-3.  **Fast-Forward**: `git checkout main` -> `git pull origin main` -> `git merge --ff-only feat/my-branch`.
+**Conflict dry-run:**
+```bash
+git merge --no-commit --no-ff [feature-branch]
+```
+- If conflicts → abort (`git merge --abort`), add Conflict Report to `PHASE_*.md`, reject
+- If clean → proceed
 
-### Step 4: Atomic Release (Version & Changelog)
-Once integrated into `main`, perform the release ceremony.
-1.  **Changelog**: Update `CHANGELOG.md` with high-fidelity, consolidated notes covering all technical wins and changes from the feature branch.
-2.  **Bump**: Run `npm run release -- --skip.tag`.
-    -   This updates `package.json`, `CHANGELOG.md`, and creates a standardized release commit (e.g., `chore(release): 1.2.3`).
-    -   **Important**: We do NOT create a git tag here; tags are reserved for the Releaser.
+---
 
-### Step 5: Documentation Consolidation & History
-Before clearing the workspace, I must preserve the execution context:
-1.  **Consolidate**: Combine the contents of `PLAN.md` and all `PHASE_*.md` files into a single archival document.
-2.  **Naming Strategy**: Prefix the file with the current timestamp in `YYYYMMDD-HHMM` format (e.g., `20240205-1430_implementation_record.md`).
-3.  **Archive**: Save this consolidated file into the `.agent/history/` directory.
+## 4. Step 3: Linear Integration (Rebase + Fast-Forward)
 
-### Step 6: Cleanup
-1.  **Delete Local Branch**: `git branch -d feat/my-branch`
-2.  **Agent Workspace Reset**: Wipe all files and documents from the `.agent/` directory **EXCEPT** for the `/history` folder. This ensures a clean slate for the next task while preserving implementation records.
+We never create merge commits. History must be linear.
 
-## 3. Constraint / Output
-- **I DO NOT write feature code.**
-- **I DO NOT push to remote repositories.** I only update the local `main` branch.
-- **I ONLY** handle linear integration (rebase/fast-forward), version bumping (without tagging), and the consolidated release commit into main.
-- Once merged locally, I hand off the environment to the **Deployer**.
+```bash
+git checkout feat/[branch]
+git rebase main              # Resolve any conflicts if needed
+npm run verify               # Re-verify on rebased branch
+git checkout main
+git pull origin main         # Ensure local main is current
+git merge --ff-only feat/[branch]
+```
 
-*Safety in integration. Stability in main. Readiness in development.*
+---
+
+## 5. Step 4: `DOCUMENTATION.md` Review (Mandatory)
+
+Before any version bump or cleanup, confirm `DOCUMENTATION.md` is accurate:
+
+- [ ] All new API endpoints are documented in `API Surface`
+- [ ] All new environment variables are listed
+- [ ] All significant decisions made during this plan are in `Key Decisions`
+- [ ] `Tech Stack` reflects any new dependencies added
+- [ ] `naŭ Platform Dependencies` is current
+
+**If `DOCUMENTATION.md` is stale → update it now. This is the last checkpoint before it gets committed.**
+
+---
+
+## 6. Step 5: Atomic Release (Version + Changelog)
+
+```bash
+# Update CHANGELOG.md with high-fidelity notes — all technical wins from the branch
+# Then bump version (no tag — tagging is /releaser's job)
+npm run release -- --skip.tag
+```
+
+This updates `package.json`, `CHANGELOG.md`, and creates a release commit (`chore(release): x.x.x`).
+
+---
+
+## 7. Step 6: Archive & Cleanup
+
+**Archive first, then clean:**
+
+```bash
+# Create archive filename
+$timestamp = Get-Date -Format "yyyyMMdd-HHmm"
+$archiveName = "${timestamp}_[feature-name].md"
+```
+
+Combine `PLAN.md` + all `PHASE_*.md` into a single file → save to `.agent/history/[archive-name].md`
+
+**Then clean the workspace:**
+```bash
+# Reset .agent/ — keep DOCUMENTATION.md and /history
+Get-ChildItem .agent -Exclude DOCUMENTATION.md, history | Remove-Item -Recurse -Force
+```
+
+---
+
+## 8. Step 7: Push Main to Origin
+
+```bash
+git push origin main
+git push origin --delete feat/[branch]   # Delete remote branch
+```
+
+This makes `main` available for `/releaser` to tag. The push does NOT deploy — GHA only triggers on tag push.
+
+---
+
+## 9. Step 8: Delete Local Branch
+
+```bash
+git branch -d feat/[branch]
+```
+
+---
+
+## 10. Constraint
+- I DO NOT write feature code
+- I DO NOT push git tags (that is `/releaser`'s exclusive authority)
+- I DO NOT deploy to production
+- My output: clean `main`, bumped version, updated `DOCUMENTATION.md`, archived history, deleted feature branch
+
+*Safety in integration. Clarity in history. Readiness for release.*

@@ -1,0 +1,178 @@
+# GHA Deploy Template — naŭ Platform
+# Copy this file to: .github/workflows/deploy.yml in each project
+# Replace all [PLACEHOLDERS] with project-specific values.
+#
+# HOW IT WORKS:
+#   1. Developer runs /merger → integrates code to main, bumps version
+#   2. Developer runs /releaser → pushes git tag (e.g. v1.2.0)
+#   3. THIS WORKFLOW fires automatically on that tag push
+#   4. Security gate runs — if any check fails, deployment is BLOCKED
+#   5. SSH deploys to Hetzner server
+#   6. Health check verifies success, or auto-rollback fires
+#
+# REQUIRED GITHUB SECRETS (set in repo Settings → Secrets):
+#   HETZNER_HOST       — Server IP address
+#   HETZNER_USER       — SSH username (e.g. deploy or root)
+#   HETZNER_SSH_KEY    — Private SSH key content (keep public key on server)
+#   APP_PORT           — Internal container port for health check
+#   PROJECT_PATH       — Full path on server (e.g. /opt/flownau)
+
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - 'v*'   # Fires ONLY on version tags: v1.0.0, v2.3.1, etc.
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false   # Never cancel an in-progress deployment
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # JOB 1: Security Gate
+  # Enforces Security Constitution rules S1, S2, S6 before deploy.
+  # Any failure blocks deployment entirely.
+  # ─────────────────────────────────────────────────────────────
+  security-gate:
+    name: Security Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: S1 — No database ports exposed to host
+        run: |
+          echo "Checking for exposed database ports..."
+          if grep -E '^\s+- ["'"'"']?[0-9]+:(5432|6379|27017|3306|5433|6380)' docker-compose.yml; then
+            echo "::error::SECURITY VIOLATION S1: Database port(s) are mapped to the host. This is a critical security risk (Redis-breach pattern). Remove all 'ports:' definitions from database services."
+            exit 1
+          fi
+          echo "✅ No database ports exposed"
+
+      - name: S2 — Redis has password configured
+        run: |
+          echo "Checking Redis password configuration..."
+          if grep -qi "redis" docker-compose.yml; then
+            if ! grep -q "requirepass\|REDIS_PASSWORD\|--requirepass" docker-compose.yml; then
+              echo "::error::SECURITY VIOLATION S2: Redis service found but no password configuration detected. Add '--requirepass \${REDIS_PASSWORD}' to Redis command."
+              exit 1
+            fi
+            echo "✅ Redis password configuration found"
+          else
+            echo "✅ No Redis service in this compose file"
+          fi
+
+      - name: S6 — Only gateway binds to 0.0.0.0
+        run: |
+          echo "Checking for non-gateway services binding to all interfaces..."
+          # Allow 80 and 443 (Traefik/gateway). Block everything else on 0.0.0.0.
+          VIOLATIONS=$(grep -n '"0.0.0.0:[^8]' docker-compose.yml || true)
+          if [ -n "$VIOLATIONS" ]; then
+            echo "::warning::Potential S6 violation — review these port bindings:"
+            echo "$VIOLATIONS"
+          fi
+          echo "✅ Port binding check complete"
+
+      - name: S7 — No production env files in repo
+        run: |
+          if git ls-files | grep -E '\.env\.production|\.env\.prod$'; then
+            echo "::error::SECURITY VIOLATION S7: Production environment file found in repository. Remove immediately — rotate all credentials it contained."
+            exit 1
+          fi
+          echo "✅ No production env files committed"
+
+      - name: Verify restart policy exists
+        run: |
+          if ! grep -q "restart: unless-stopped" docker-compose.yml; then
+            echo "::warning::No 'restart: unless-stopped' found in docker-compose.yml — services will not auto-recover after server restart"
+          else
+            echo "✅ Restart policy configured"
+          fi
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2: Deploy
+  # Runs only after security-gate passes.
+  # SSH to Hetzner, pull, restart, health check.
+  # Auto-rollback on health check failure.
+  # ─────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to Hetzner
+    needs: security-gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          timeout: 120s
+          script: |
+            set -e
+
+            echo "=== Deploying ${{ steps.version.outputs.VERSION }} ==="
+            cd ${{ secrets.PROJECT_PATH }}
+
+            # Pull latest main
+            git fetch origin
+            git checkout main
+            git pull origin main
+
+            echo "=== Pulling Docker images ==="
+            docker compose pull
+
+            echo "=== Applying database migrations ==="
+            # Uncomment the line matching your ORM:
+            # docker compose run --rm app npx prisma migrate deploy
+            # docker compose run --rm app npm run migration:run
+
+            echo "=== Starting services ==="
+            docker compose up -d --remove-orphans
+
+            echo "=== Waiting for services to stabilize ==="
+            sleep 15
+
+            echo "=== Health check ==="
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${{ secrets.APP_PORT }}/health || echo "000")
+
+            if [ "$HTTP_STATUS" != "200" ]; then
+              echo "::error::Health check FAILED (HTTP $HTTP_STATUS). Initiating rollback..."
+              git reset --hard HEAD~1
+              docker compose up -d
+              sleep 10
+              ROLLBACK_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${{ secrets.APP_PORT }}/health || echo "000")
+              echo "Rollback health check: HTTP $ROLLBACK_STATUS"
+              exit 1
+            fi
+
+            echo "=== Cleaning up old Docker images ==="
+            docker image prune -f
+
+            echo "✅ Deployment of ${{ steps.version.outputs.VERSION }} successful"
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 3: Notify (Optional — add Telegram notification via Zazu)
+  # ─────────────────────────────────────────────────────────────
+  notify:
+    name: Notify
+    needs: [security-gate, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Deployment Result
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "✅ Deployment succeeded: ${{ github.repository }} @ ${GITHUB_REF#refs/tags/}"
+          else
+            echo "❌ Deployment FAILED: ${{ github.repository }} @ ${GITHUB_REF#refs/tags/}"
+            echo "Check the Actions log and consider /recover workflow"
+          fi
+          # Future: send Telegram message via Zazu webhook

@@ -5,43 +5,120 @@ description: Production Release & Deployment
 # Releaser Workflow
 
 ## 1. Role & Objective
-I am the **Releaser**. I am the final gatekeeper before the code touches Production.
-**Trigger**: `main` has accumulated enough value (commits/merges) for a Release.
+I am the **Releaser**. I am the production deployment trigger.
 
-## 2. Process
+**One action defines me:** pushing a git tag. That tag signals "this code is stable and approved for production." GitHub Actions catches the tag push and executes the deployment automatically.
 
-### Step 1: Deep Verification
-1.  **Security Scan**: Run `npm audit` or specific security scripts.
-2.  **Documentation**: Ensure `README.md` and API docs are consistent with the new code.
-3.  **Performance**: Quick check of bundle size or load times (if applicable).
+**Trigger:** `/merger` has completed. `main` is clean, version is bumped, pushed to origin.
 
-### Step 2: Tagging (The Release)
-We capture the current state of `main` as a Release.
-1.  **Read Version**: Get the current version from `package.json` (e.g., `1.2.0`).
-2.  **Create Tag**:
-    ```bash
-    git tag v1.2.0
-    ```
-    *Note*: The `merger` step already ensured `package.json` matches this version.
+---
 
-### Step 3: Deployment Trigger
-1.  **Push Tag**:
-    ```bash
-    git push origin v1.2.0
-    ```
-2.  **CI/CD Action**:
-    -   This push triggers the `deploy-to-serve` (or relevant) GitHub Action.
-    -   Docker images are built.
-    -   Production is updated.
+## 2. Step 1: Pre-Release Gate
 
-### Step 4: Post-Release
-1.  **Announce**: (Optional) Summary of `CHANGELOG.md` is shared.
-2.  **Monitor**: Watch logs for the next hour for smoke/fire.
+Before tagging, confirm the following or the tag does not get created.
 
-## 3. Constraint / Output
-- **I DO NOT write/modify code.**
-- **I ONLY** handle verification, git tagging, and deployment triggering.
-- I am responsible for creating the version tag, pushing it, and ensuring everything is set for a successful **Production Deployment**, backed by GitHub CI/CD actions.
-- My output is a confirmed **Production Release Tag** and a deployment status report.
+### A. Code Quality Confirmed
+```bash
+git log --oneline -5     # Confirm last commit is the release commit (chore(release): x.x.x)
+npm run verify           # One final clean run
+```
 
-*Final gatekeeper. Quality is the only metric. Production is the standard.*
+### B. Security Constitution Check (mandatory — mirrors the GHA check)
+```bash
+# S1: No DB ports exposed
+Select-String -Path "docker-compose.yml" -Pattern "^\s+- ['"'"'""'"'"']?\d+:(5432|6379|27017|3306)"
+# Must return EMPTY. Any result = BLOCK.
+
+# S2: Redis requires password
+Select-String -Path "docker-compose.yml" -Pattern "requirepass|REDIS_PASSWORD"
+# Must return a result.
+
+# S4: NAU_SERVICE_KEY in .env.example (if Platform Service)
+Select-String -Path ".env.example" -Pattern "NAU_SERVICE_KEY"
+```
+
+### C. DOCUMENTATION.md Is Current
+Confirm `.agent/DOCUMENTATION.md` was updated by `/merger` and reflects this release.
+
+---
+
+## 3. Step 2: Create and Push the Tag
+
+```bash
+# Read version from package.json
+$version = (Get-Content package.json | ConvertFrom-Json).version
+Write-Host "Releasing v$version"
+
+# Create annotated tag
+git tag -a "v$version" -m "release: v$version"
+
+# Push the tag — this is what triggers GHA
+git push origin "v$version"
+```
+
+**That's it.** GitHub Actions takes over from here.
+
+---
+
+## 4. Step 3: Monitor the GHA Run
+
+1. Open the repository on GitHub → Actions tab
+2. Confirm the `Deploy to Production` workflow is triggered
+3. Watch for completion — typically 2-5 minutes
+4. If GHA fails → see Step 5 (Rollback)
+
+---
+
+## 5. Step 4: Post-Release Verification
+
+Once GHA reports success:
+
+```bash
+# Smoke test the production endpoint
+curl -f https://[service-domain]/health
+
+# Check the running version is correct
+curl https://[service-domain]/api/version
+```
+
+---
+
+## 6. Step 5: Rollback (If GHA Fails or Health Check Fails)
+
+```bash
+# Option A: Delete the tag and re-deploy previous version
+git tag -d "v$version"
+git push origin --delete "v$version"
+# Re-tag the previous stable version to trigger a re-deploy
+git tag -a "v[previous-version]" -m "rollback: revert to v[previous-version]" [previous-commit-hash]
+git push origin "v[previous-version]"
+
+# Option B: Manual emergency — invoke /deployer workflow
+```
+
+---
+
+## 7. The GHA Workflow Template
+
+Every project that uses this deployment model must have `.github/workflows/deploy.yml`.
+Reference template: `engineering_protocols/templates/gha-deploy.yml`
+
+Key structure:
+```yaml
+on:
+  push:
+    tags: ['v*']         # Only fires on version tags
+jobs:
+  security-gate: ...     # Checks S1, S2, S6 before deployment
+  deploy: ...            # SSH to Hetzner, pull, restart, health check
+```
+
+---
+
+## 8. Constraint
+- I DO NOT write or modify feature code
+- I DO NOT modify `CHANGELOG.md` (that was `/merger`'s responsibility)
+- **I am the ONLY actor that creates and pushes git version tags**
+- I have no authority to bypass the Security Gate in Step 1
+
+*The tag is the contract. The contract means: this has been verified, tested, and is safe to ship.*
